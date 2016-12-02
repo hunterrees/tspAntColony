@@ -6,3 +6,4 @@
 \\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\TSP.csproj.GenerateResource.Cache
 \\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\WindowsFormsApplication1.exe
 \\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\WindowsFormsApplication1.pdb
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\TSP.csprojResolveAssemblyReference.cache

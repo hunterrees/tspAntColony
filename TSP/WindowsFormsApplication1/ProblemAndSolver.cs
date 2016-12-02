@@ -487,11 +487,7 @@ namespace TSP
 
                 double lastCost = Cities[path[path.Count - 1]].costToGetTo(Cities[path[0]]);
                 if (path.Count == Cities.Length && lastCost != double.PositiveInfinity) {
-                    ArrayList potentialPath = new ArrayList();
-                    for (int j = 0; j < path.Count; j++) {
-                        potentialPath.Add(Cities[path[j]]);
-                    }
-                    TSPSolution potentialSolution = new TSPSolution(potentialPath);
+                    TSPSolution potentialSolution = new TSPSolution(GenerateRoute(path));
                     if (bssf == null || potentialSolution.costOfRoute() < costOfBssf()) {
                         bssf = potentialSolution;
                         count++;
@@ -538,7 +534,7 @@ namespace TSP
         List<List<int>> ants;
         private double[,] distances;
         private double[,] pheromones;
-        int lastChange;
+        int toursSinceLastChange;
         int CHANGE_THRESHOLD;
 
         public string[] fancySolveProblem()
@@ -550,11 +546,35 @@ namespace TSP
             ants = new List<List<int>>();
             distances = new double[Cities.Length, Cities.Length];
             pheromones = new double[Cities.Length, Cities.Length];
-            lastChange = 0;
+            toursSinceLastChange = 0;
             CHANGE_THRESHOLD = Cities.Length; //This is a place holder value that will be modified later on
 
             timer.Start();
 
+            while(timer.Elapsed.TotalMilliseconds < time_limit && toursSinceLastChange < CHANGE_THRESHOLD) {
+                foreach (List<int> ant in ants) {
+                    if (ant.Count == Cities.Length) {
+                        if (Cities[ant[ant.Count - 1]].costToGetTo(Cities[ant[0]]) != double.PositiveInfinity) {
+                            TSPSolution potentialSolution = new TSPSolution(GenerateRoute(ant));
+                            double oldSolutionCost = costOfBssf();
+                            double newSolutionCost = potentialSolution.costOfRoute();
+                            if (newSolutionCost < oldSolutionCost) {
+                                bssf = potentialSolution;
+                                toursSinceLastChange = 0;
+                                count++;
+                            }
+                            else {
+                                toursSinceLastChange++;
+                            }
+                            FadePheromone();
+                            DropPheromone(ant, oldSolutionCost, newSolutionCost);
+                        }  
+                        ResetAnt(ant);
+                    }
+                    TakeNextEdge(ant);
+                    //DropPheromoneOnEdge (potentially)
+                }
+            }
 
 
             timer.Stop();
@@ -564,6 +584,30 @@ namespace TSP
             results[COUNT] = count.ToString();
 
             return results;
+        }
+
+        private ArrayList GenerateRoute(List<int> path) {
+            ArrayList potentialPath = new ArrayList();
+            for (int i = 0; i < path.Count; i++) {
+                potentialPath.Add(Cities[path[i]]);
+            }
+            return potentialPath;
+        }
+
+        private void TakeNextEdge(List<int> ant) {
+
+        }
+
+        private void FadePheromone() {
+
+        }
+
+        private void DropPheromone(List<int> ant, double costOfOldSolution, double costOfNewSolution) {
+
+        }      
+
+        private void ResetAnt(List<int> ant) {
+
         }
         #endregion
     }

@@ -467,6 +467,15 @@ namespace TSP
 
             timer.Start();
 
+            /*
+             * Starting at each city the greedy path is found.
+             * This is done by taking the shortest edge out of a city.
+             * The overall path is compared the best found so far.
+             * If better, it replaces the BSSF and the process continues.
+             * If a path gets stuck (only infinite edges out),
+             * then the path is rejected and the code starts
+             * the greedy path at the next city.
+             */ 
             for (int i = 0; i < Cities.Length; i++) {
                 double[,] matrix = CalculateInitialMatrix();
                 List<int> path = new List<int>();
@@ -487,7 +496,7 @@ namespace TSP
 
                 double lastCost = Cities[path[path.Count - 1]].costToGetTo(Cities[path[0]]);
                 if (path.Count == Cities.Length && lastCost != double.PositiveInfinity) {
-                    TSPSolution potentialSolution = new TSPSolution(GenerateRoute(path));
+                    TSPSolution potentialSolution = GenerateRoute(path);
                     if (bssf == null || potentialSolution.costOfRoute() < costOfBssf()) {
                         bssf = potentialSolution;
                         count++;
@@ -544,18 +553,33 @@ namespace TSP
             Stopwatch timer = new Stopwatch();
 
             ants = new List<List<int>>();
-            distances = new double[Cities.Length, Cities.Length];
+            distances = CalculateInitialMatrix();
             pheromones = new double[Cities.Length, Cities.Length];
             toursSinceLastChange = 0;
             CHANGE_THRESHOLD = Cities.Length; //This is a place holder value that will be modified later on
 
             timer.Start();
 
+            //Initialize with empty ants
+            for (int i = 0; i < Cities.Length; i++) {
+                ants.Add(new List<int>());
+            }
+
+            /*
+             * While we are not out of time and still seeing changes,
+             * The ants all select the best edge out of current city.
+             * This is done using the distance and pheromone of the edge.
+             * When a completed tour is found, it is compared to the BSSF.
+             * If the tour is better the BSSF is updated.
+             * The existing, older pheromones fade by a constant factor,
+             * and additional pheromone is placed on the new tour.
+             * After this an ant with a completed tour is reset.
+             */
             while(timer.Elapsed.TotalMilliseconds < time_limit && toursSinceLastChange < CHANGE_THRESHOLD) {
                 foreach (List<int> ant in ants) {
                     if (ant.Count == Cities.Length) {
                         if (Cities[ant[ant.Count - 1]].costToGetTo(Cities[ant[0]]) != double.PositiveInfinity) {
-                            TSPSolution potentialSolution = new TSPSolution(GenerateRoute(ant));
+                            TSPSolution potentialSolution = GenerateRoute(ant);
                             double oldSolutionCost = costOfBssf();
                             double newSolutionCost = potentialSolution.costOfRoute();
                             if (newSolutionCost < oldSolutionCost) {
@@ -572,7 +596,7 @@ namespace TSP
                         ResetAnt(ant);
                     }
                     TakeNextEdge(ant);
-                    //DropPheromoneOnEdge (potentially)
+                    //DropPheromoneOnEdge (potentially, depends on how it works without this)
                 }
             }
 
@@ -586,26 +610,55 @@ namespace TSP
             return results;
         }
 
-        private ArrayList GenerateRoute(List<int> path) {
+        private TSPSolution GenerateRoute(List<int> path) {
             ArrayList potentialPath = new ArrayList();
             for (int i = 0; i < path.Count; i++) {
                 potentialPath.Add(Cities[path[i]]);
             }
-            return potentialPath;
+            return new TSPSolution(potentialPath);
         }
 
+        /*
+         * Adds the next edge in the path.
+         * This either the best edge (based on pheromone and distance),
+         * or a randomly chosen edge.
+         * A random edge is only chosen a small portion of the time.
+         */
         private void TakeNextEdge(List<int> ant) {
 
         }
 
+        /*
+         * Takes the best edge out of the current city.
+         * This is determined by pheromone and distance of edges.
+         */
+        private void TakeBestEdge(List<int> ant) {
+
+        }
+
+        /*
+         * The pheromone on each edge is decreased by a certain factor.
+         * This is done to decrease the importance of old edges,
+         * meaning an edge that was visited a lot previously,
+         * but hasn't been visited recently.
+         */
         private void FadePheromone() {
 
         }
 
+        /*
+         * Drops pheromone on each edge in the given path.
+         * The better the path is compared to the old path,
+         * the more pheromone that is dropped on each edge.
+         */
         private void DropPheromone(List<int> ant, double costOfOldSolution, double costOfNewSolution) {
 
         }      
 
+        /*
+         * Clears out the ant's path.
+         * The ant's new path is then started at a random city.
+         */
         private void ResetAnt(List<int> ant) {
 
         }

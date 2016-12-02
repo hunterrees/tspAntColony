@@ -535,15 +535,33 @@ namespace TSP
             return minIndex;
         }
 
+        List<List<int>> ants;
+        private double[,] distances;
+        private double[,] pheromones;
+        int lastChange;
+        int CHANGE_THRESHOLD;
+
         public string[] fancySolveProblem()
         {
             string[] results = new string[3];
+            int count = 0;
+            Stopwatch timer = new Stopwatch();
 
-            // TODO: Add your implementation for your advanced solver here.
+            ants = new List<List<int>>();
+            distances = new double[Cities.Length, Cities.Length];
+            pheromones = new double[Cities.Length, Cities.Length];
+            lastChange = 0;
+            CHANGE_THRESHOLD = Cities.Length; //This is a place holder value that will be modified later on
 
-            results[COST] = "not implemented";    // load results into array here, replacing these dummy values
-            results[TIME] = "-1";
-            results[COUNT] = "-1";
+            timer.Start();
+
+
+
+            timer.Stop();
+
+            results[COST] = costOfBssf().ToString();
+            results[TIME] = timer.Elapsed.ToString();
+            results[COUNT] = count.ToString();
 
             return results;
         }

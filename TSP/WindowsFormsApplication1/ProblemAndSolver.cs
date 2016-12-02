@@ -637,7 +637,7 @@ namespace TSP
          * This is determined by pheromone and distance of edges.
          */
         private void TakeBestEdge(List<int> ant) {
-
+            //Here is my test comment to see if commiting works. -Christian
         }
 
         /*

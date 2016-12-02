@@ -691,6 +691,20 @@ namespace TSP
          */
         private void TakeRandomEdge(Ant ant)
         {
+            int currentCity = ant.Path[ant.Count - 1];
+            
+
+            List<int> citiesNotVisited = new List<int>(); //compile list of cities that the ant has NOT visited.
+            for(int i =0; i < Cities.Length; i++)
+            {
+                if (!ant.AlreadyVisited(i) && EdgeWeight(currentCity, i) > 0)
+                {
+                    citiesNotVisited.Add(i);
+                }
+            }
+
+            int randIndex = new Random().Next(0, citiesNotVisited.Count -1);
+            ant.Add(citiesNotVisited[randIndex]);
 
         }
 

@@ -646,8 +646,15 @@ namespace TSP
          * meaning an edge that was visited a lot previously,
          * but hasn't been visited recently.
          */
+        static int PHEROMONE_CONSTANT_REDUCTION = 3;
         private void FadePheromone() {
-
+            for (int i = 0; i < Cities.Length; i++)
+            {
+                for (int j = 0; j < Cities.Length; j++)
+                {
+                    pheromones[i, j] = pheromones[i, j] - PHEROMONE_CONSTANT_REDUCTION;
+                }
+            }
         }
 
         /*
@@ -655,8 +662,15 @@ namespace TSP
          * The better the path is compared to the old path,
          * the more pheromone that is dropped on each edge.
          */
+        static int COST_DIFFERENCE_FACTOR = 5;
         private void DropPheromone(List<int> ant, double costOfOldSolution, double costOfNewSolution) {
+            double fullReductionAmount = (COST_DIFFERENCE_FACTOR * ((costOfOldSolution - costOfNewSolution) / costOfNewSolution))
+                + COST_DIFFERENCE_FACTOR;
 
+            for(int i = 0; i < ant.Count - 1; i++)
+            {
+                pheromones[ant[i], ant[i + 1]] = pheromones[ant[i], ant[i + 1]] + fullReductionAmount; 
+            }
         }      
 
         /*

@@ -16,3 +16,6 @@ C:\Users\Dan\Desktop\TSP\WindowsFormsApplication1\bin\Debug\WindowsFormsApplicat
 \\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\TSP.mainform.resources
 \\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
 \\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\TSP.csproj.GenerateResource.Cache
+C:\Users\Jesse\Documents\GitHub\CS312_Group\tspAntColony\TSP\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe.config
+C:\Users\Jesse\Documents\GitHub\CS312_Group\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
+C:\Users\Jesse\Documents\GitHub\CS312_Group\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb

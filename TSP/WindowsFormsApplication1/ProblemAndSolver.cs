@@ -612,9 +612,7 @@ namespace TSP
                     if (ant.Count == Cities.Length) {
                         if (Cities[ant.Path[ant.Count - 1]].costToGetTo(Cities[ant.Path[0]]) != double.PositiveInfinity) {
                             TSPSolution potentialSolution = GenerateRoute(ant.Path);
-                            double oldSolutionCost = costOfBssf();
-                            double newSolutionCost = potentialSolution.costOfRoute();
-                            if (bssf == null || newSolutionCost < oldSolutionCost) {
+                            if (bssf == null || potentialSolution.costOfRoute() < costOfBssf()) {
                                 bssf = potentialSolution;
                                 toursSinceLastChange = 0;
                                 count++;
@@ -623,7 +621,7 @@ namespace TSP
                                 toursSinceLastChange++;
                             }
                             FadePheromone();
-                            DropPheromone(ant.Path, oldSolutionCost, newSolutionCost);
+                            DropPheromone(ant, potentialSolution.costOfRoute());
                         }  
                         ResetAnt(ant);
                     }
@@ -648,17 +646,6 @@ namespace TSP
             return new TSPSolution(potentialPath);
         }
 
-        //Function to get random number
-        private static readonly Random getrandom = new Random();
-        private static readonly object syncLock = new object();
-        public static int GetRandomNumber(int min, int max)
-        {
-            lock (syncLock)
-            { // synchronize
-                return getrandom.Next(min, max);
-            }
-        }
-        
         /*
          * Adds the next edge in the path.
          * This is either the best edge (based on pheromone and distance),
@@ -666,20 +653,16 @@ namespace TSP
          * A random edge is only chosen a small portion of the time.
          */
         private void TakeNextEdge(Ant ant) {
-            int rand = GetRandomNumber(0, 10);
+            int rand = new Random().Next(0, 100);
 
             //checking if there is a viable option for a city
             bool foundViableCity = false;
             int lastCity = ant.Path[ant.Path.Count - 1];
-            for (int i = 0; i < Cities.Length; i++)
-            {
-                if(distances[lastCity, i] != double.MaxValue)
-                {
+            for (int i = 0; i < Cities.Length; i++) {
+                if (!ant.AlreadyVisited(i) && distances[lastCity, i] != double.PositiveInfinity) {
                     foundViableCity = true;
                 }
             }
-
-
 
             if (!foundViableCity)
             {
@@ -687,7 +670,7 @@ namespace TSP
             }
             else
             {
-                if (rand < 8)
+                if (rand < 75)
                 {
                     TakeBestEdge(ant);
                 }
@@ -726,13 +709,7 @@ namespace TSP
                     maxIndex = i;
                 }
             }
-
-            if (maxIndex != -1) {
-                ant.Add(maxIndex);
-            }
-            else {
-                ResetAnt(ant);
-            }
+            ant.Add(maxIndex);
         }
 
         /*
@@ -772,6 +749,7 @@ namespace TSP
             for (int i = 0; i < ant.Count - 1; i++) {
                 pheromones[ant.Path[i], ant.Path[i + 1]] += (1 / costOfTour); 
             }
+            pheromones[ant.Path[ant.Count - 1], ant.Path[0]] += (1 / costOfTour);
         }      
 
         /*
@@ -780,7 +758,7 @@ namespace TSP
          */
         private void ResetAnt(Ant ant) {
             ant.Path.Clear();
-            ant.Add(new Random().Next() % Cities.Length);
+            ant.Add(new Random().Next(0, Cities.Length));
         }
         #endregion
     }

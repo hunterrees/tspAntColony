@@ -592,10 +592,11 @@ namespace TSP
                 }
             }
 
-            int toursSinceLastChange = 0;
-            int CHANGE_THRESHOLD = Cities.Length; //This is a place holder value that will be modified later on
-            
+            Stopwatch timeSinceLastChange = new Stopwatch();
+            int CHANGE_THRESHOLD = 15; //TO-BE-MODIFIED
+
             timer.Start();
+            timeSinceLastChange.Start();
 
             /*
              * While we are not out of time and still seeing changes,
@@ -607,21 +608,19 @@ namespace TSP
              * and additional pheromone is placed on the new tour.
              * After this an ant with a completed tour is reset.
              */
-            while(timer.Elapsed.TotalMilliseconds < time_limit && toursSinceLastChange < CHANGE_THRESHOLD) {
+            while(timer.Elapsed.TotalMilliseconds < time_limit && timeSinceLastChange.Elapsed.TotalSeconds < CHANGE_THRESHOLD) {
                 foreach (Ant ant in ants) {
                     if (ant.Count == Cities.Length) {
                         if (Cities[ant.Path[ant.Count - 1]].costToGetTo(Cities[ant.Path[0]]) != double.PositiveInfinity) {
                             TSPSolution potentialSolution = GenerateRoute(ant.Path);
-                            if (bssf == null || potentialSolution.costOfRoute() < costOfBssf()) {
+                            double costOfRoute = potentialSolution.costOfRoute();
+                            if (bssf == null || costOfRoute < costOfBssf()) {
                                 bssf = potentialSolution;
-                                toursSinceLastChange = 0;
+                                timeSinceLastChange.Restart();
                                 count++;
                             }
-                            else {
-                                toursSinceLastChange++;
-                            }
                             FadePheromone();
-                            DropPheromone(ant, potentialSolution.costOfRoute());
+                            DropPheromone(ant, costOfRoute);
                         }  
                         ResetAnt(ant);
                     }
@@ -670,7 +669,7 @@ namespace TSP
             }
             else
             {
-                if (rand < 75)
+                if (rand < 75) //TO-BE-MODIFIED
                 {
                     TakeBestEdge(ant);
                 }
@@ -730,8 +729,8 @@ namespace TSP
          * Determines the value of an edge.
          * The larger the value the more favorable it is.
          */
-        private static double A = 1;
-        private static double B = 1;
+        private static double A = 1; //TO-BE-MODIFIED
+        private static double B = 1; //TO-BE-MODIFIED
         private double EdgeWeight(int x, int y) {
             if (distances[x, y] == double.PositiveInfinity) {
                 return 0;
@@ -745,7 +744,7 @@ namespace TSP
          * meaning an edge that was visited a lot previously,
          * but hasn't been visited recently.
          */
-        private static double PHEROMONE_CONSTANT_REDUCTION = .75;
+        private static double PHEROMONE_CONSTANT_REDUCTION = .75; //TO-BE-MODIFIED
         private void FadePheromone() {
             for (int i = 0; i < Cities.Length; i++) {
                 for (int j = 0; j < Cities.Length; j++) {

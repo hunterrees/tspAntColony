@@ -543,16 +543,43 @@ namespace TSP
         private double[,] distances;
         private double[,] pheromones;
 
+        class Ant {
+            private List<int> path;
+            private HashSet<int> visited;
+
+            public Ant() {
+                path = new List<int>();
+                visited = new HashSet<int>();
+            }
+
+            public List<int> Path {
+                get { return path; }
+            }
+
+            public int Count {
+                get { return path.Count; }
+            }
+
+            public void Add(int n) {
+                path.Add(n);
+                visited.Add(n);
+            }
+
+            public bool AlreadyVisited(int n) {
+                return visited.Contains(n);
+            }
+        }
+
         public string[] fancySolveProblem()
         {
             string[] results = new string[3];
             int count = 0;
             Stopwatch timer = new Stopwatch();
 
-            List<List<int>> ants = new List<List<int>>();
+            List<Ant> ants = new List<Ant>();
             //Initialize with empty ants
             for (int i = 0; i < Cities.Length; i++) {
-                ants.Add(new List<int>());
+                ants.Add(new Ant());
             }
 
             distances = CalculateInitialMatrix();
@@ -581,10 +608,10 @@ namespace TSP
              * After this an ant with a completed tour is reset.
              */
             while(timer.Elapsed.TotalMilliseconds < time_limit && toursSinceLastChange < CHANGE_THRESHOLD) {
-                foreach (List<int> ant in ants) {
+                foreach (Ant ant in ants) {
                     if (ant.Count == Cities.Length) {
-                        if (Cities[ant[ant.Count - 1]].costToGetTo(Cities[ant[0]]) != double.PositiveInfinity) {
-                            TSPSolution potentialSolution = GenerateRoute(ant);
+                        if (Cities[ant.Path[ant.Count - 1]].costToGetTo(Cities[ant.Path[0]]) != double.PositiveInfinity) {
+                            TSPSolution potentialSolution = GenerateRoute(ant.Path);
                             double oldSolutionCost = costOfBssf();
                             double newSolutionCost = potentialSolution.costOfRoute();
                             if (bssf == null || newSolutionCost < oldSolutionCost) {
@@ -596,12 +623,11 @@ namespace TSP
                                 toursSinceLastChange++;
                             }
                             FadePheromone();
-                            DropPheromone(ant, oldSolutionCost, newSolutionCost);
+                            DropPheromone(ant.Path, oldSolutionCost, newSolutionCost);
                         }  
                         ResetAnt(ant);
                     }
                     TakeNextEdge(ant);
-                    //DropPheromoneOnEdge (potentially, depends on how it works without this)
                 }
             }
 
@@ -628,7 +654,7 @@ namespace TSP
          * or a randomly chosen edge.
          * A random edge is only chosen a small portion of the time.
          */
-        private void TakeNextEdge(List<int> ant) {
+        private void TakeNextEdge(Ant ant) {
 
         }
 
@@ -636,8 +662,8 @@ namespace TSP
          * Takes the best edge out of the current city.
          * This is determined by pheromone and distance of edges.
          */
-        private void TakeBestEdge(List<int> ant) {
-            //Here is my test comment to see if commiting works. -Christian
+        private void TakeBestEdge(Ant ant) {
+            
         }
 
         /*
@@ -677,8 +703,9 @@ namespace TSP
          * Clears out the ant's path.
          * The ant's new path is then started at a random city.
          */
-        private void ResetAnt(List<int> ant) {
-
+        private void ResetAnt(Ant ant) {
+            ant.Path.Clear();
+            ant.Add(new Random().Next() % Cities.Length);
         }
         #endregion
     }

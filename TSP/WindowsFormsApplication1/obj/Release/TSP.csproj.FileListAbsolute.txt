@@ -1,0 +1,8 @@
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\bin\Release\WindowsFormsApplication1.exe.config
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\bin\Release\WindowsFormsApplication1.exe
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\bin\Release\WindowsFormsApplication1.pdb
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\TSP.mainform.resources
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\WindowsFormsApplication1.Properties.Resources.resources
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\TSP.csproj.GenerateResource.Cache
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\WindowsFormsApplication1.exe
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Release\WindowsFormsApplication1.pdb

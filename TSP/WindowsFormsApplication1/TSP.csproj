@@ -52,6 +52,8 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="HardMode.cs" />
+    <Compile Include="PartialPath.cs" />
+    <Compile Include="PriorityQueue.cs" />
     <Compile Include="ProblemAndSolver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

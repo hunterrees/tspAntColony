@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Diagnostics;
-
+using System.Collections.Generic;
+using System.IO;
 
 namespace TSP
 {
@@ -159,7 +158,7 @@ namespace TSP
             rnd = new Random(1);
             this._size = DEFAULT_SIZE;
             this.time_limit = TIME_LIMIT * 1000;                  // TIME_LIMIT is in seconds, but timer wants it in milliseconds
-
+            
             this.resetData();
         }
 
@@ -169,7 +168,7 @@ namespace TSP
             rnd = new Random(seed);
             this._size = DEFAULT_SIZE;
             this.time_limit = TIME_LIMIT * 1000;                  // TIME_LIMIT is in seconds, but timer wants it in milliseconds
-
+            
             this.resetData();
         }
 
@@ -378,15 +377,78 @@ namespace TSP
         public string[] bBSolveProblem()
         {
             string[] results = new string[3];
+            int count = 0;
+            Stopwatch timer = new Stopwatch();
+            PriorityQueue queue = new PriorityQueue();
 
-            // TODO: Add your implementation for a branch and bound solver here.
+            timer.Start();
 
+            greedySolveProblem();
+            
+            queue.Insert(new PartialPath(CalculateInitialMatrix(), Cities));
 
-            results[COST] = "not implemented";    // load results into array here, replacing these dummy values
-            results[TIME] = "-1";
-            results[COUNT] = "-1";
+            /* While there are still partial paths on the queue,
+             * the best one is popped off and its children are generated.
+             * Those that are better than the bssf are added to the queue.
+             */
+            while (timer.Elapsed.TotalMilliseconds < time_limit && !queue.Empty()) {
+                PartialPath currentNode = queue.DeleteMin();
+                if (currentNode.FullPath && currentNode.CompletePath) {
+                    TSPSolution potentialSolution = new TSPSolution(currentNode.Path);
+                    if (potentialSolution.costOfRoute() < costOfBssf()) {
+                        bssf = potentialSolution;
+                        count++;
+                    }
+                }
+                else if (currentNode.LowerBound < costOfBssf()) {
+                    GenerateChildren(currentNode, queue);
+                }
+            }
+
+            timer.Stop();
+
+            results[COST] = costOfBssf().ToString();
+            results[TIME] = timer.Elapsed.ToString();
+            results[COUNT] = count.ToString();
 
             return results;
+        }
+
+        /*
+         * Calculates the initial distance matrix.
+         * O(n^2) run time.
+         */
+        private double[,] CalculateInitialMatrix() {
+            double[,] matrix = new double[Cities.Length, Cities.Length];
+            for (int i = 0; i < Cities.Length; i++) {
+                for (int j = 0; j < Cities.Length; j++) {
+                    if (i != j) {
+                        matrix[i, j] = Cities[i].costToGetTo(Cities[j]);
+                    }
+                    else {
+                        matrix[i, j] = double.PositiveInfinity;
+                    }
+
+                }
+            }
+            return matrix;
+        }
+
+        /*
+         * Generates all child partial paths.
+         * It creates one for each non-infinte edge
+         * leaving the last city visited.
+         * If the new node's lower bound < bssf, it's added to the queue.
+         */
+        private void GenerateChildren(PartialPath currentNode, PriorityQueue queue) {
+            for (int i = 1; i < Cities.Length; i++) {
+                if (currentNode.Matrix[currentNode.LastCityVisited, i] != double.PositiveInfinity) {
+                    PartialPath child = new PartialPath(currentNode, i);
+                    if (child.LowerBound < costOfBssf()) {
+                        queue.Insert(child);
+                    }
+                }
+            }
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////
@@ -400,14 +462,77 @@ namespace TSP
         public string[] greedySolveProblem()
         {
             string[] results = new string[3];
+            int count = 0;
+            Stopwatch timer = new Stopwatch();
 
-            // TODO: Add your implementation for a greedy solver here.
+            timer.Start();
 
-            results[COST] = "not implemented";    // load results into array here, replacing these dummy values
-            results[TIME] = "-1";
-            results[COUNT] = "-1";
+            for (int i = 0; i < Cities.Length; i++) {
+                double[,] matrix = CalculateInitialMatrix();
+                List<int> path = new List<int>();
+                path.Add(i);
+                for (int j = 0; j < Cities.Length; j++) {
+                    matrix[j, i] = double.PositiveInfinity;
+                }
+
+                while (path.Count < Cities.Length) {
+                    int index = GetIndexOfMin(path[path.Count - 1], matrix);
+                    if (index != -1) {
+                        path.Add(index);
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                double lastCost = Cities[path[path.Count - 1]].costToGetTo(Cities[path[0]]);
+                if (path.Count == Cities.Length && lastCost != double.PositiveInfinity) {
+                    ArrayList potentialPath = new ArrayList();
+                    for (int j = 0; j < path.Count; j++) {
+                        potentialPath.Add(Cities[path[j]]);
+                    }
+                    TSPSolution potentialSolution = new TSPSolution(potentialPath);
+                    if (bssf == null || potentialSolution.costOfRoute() < costOfBssf()) {
+                        bssf = potentialSolution;
+                        count++;
+                    }
+                }
+            }
+
+            timer.Stop();
+           
+            results[COST] = costOfBssf().ToString();    
+            results[TIME] = timer.Elapsed.ToString();
+            results[COUNT] = count.ToString();
 
             return results;
+        }
+
+        /*
+         * Looks through specified row of the matrix.
+         * The index of the minimum value is found.
+         * The column is then infinitied so we don't revisit a city.
+         * If the min is infinity, -1 is returned as index.
+         * O(n) to find min of the row.
+         */
+        private int GetIndexOfMin(int row, double[,] matrix) {
+            int minIndex = -1;
+            double min = double.PositiveInfinity;
+
+            for (int i = 0; i < Cities.Length; i++) {
+                if (matrix[row, i] < min) {
+                    minIndex = i;
+                    min = matrix[row, i];
+                }
+            }
+
+            if (minIndex != -1) { 
+                for (int i = 0; i < Cities.Length; i++) {
+                    matrix[i, minIndex] = double.PositiveInfinity;
+                }
+            }
+
+            return minIndex;
         }
 
         public string[] fancySolveProblem()

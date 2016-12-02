@@ -7,3 +7,12 @@ C:\Users\Dan\Desktop\TSP\WindowsFormsApplication1\obj\Debug\WindowsFormsApplicat
 C:\Users\Dan\Desktop\TSP\WindowsFormsApplication1\obj\Debug\TSP.csproj.GenerateResource.Cache
 C:\Users\Dan\Desktop\TSP\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe
 C:\Users\Dan\Desktop\TSP\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe.config
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\TSP.csprojResolveAssemblyReference.cache
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\TSP.mainform.resources
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+\\Mac\Home\Documents\312\tspAntColony\TSP\WindowsFormsApplication1\obj\Debug\TSP.csproj.GenerateResource.Cache

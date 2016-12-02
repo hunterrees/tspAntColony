@@ -580,6 +580,7 @@ namespace TSP
             //Initialize with empty ants
             for (int i = 0; i < Cities.Length; i++) {
                 ants.Add(new Ant());
+                ants[i].Add(i);
             }
 
             distances = CalculateInitialMatrix();
@@ -656,7 +657,7 @@ namespace TSP
 
             //checking if there is a viable option for a city
             bool foundViableCity = false;
-            int lastCity = ant.Path[ant.Path.Count - 1];
+            int lastCity = ant.Path[ant.Count - 1];
             for (int i = 0; i < Cities.Length; i++) {
                 if (!ant.AlreadyVisited(i) && distances[lastCity, i] != double.PositiveInfinity) {
                     foundViableCity = true;

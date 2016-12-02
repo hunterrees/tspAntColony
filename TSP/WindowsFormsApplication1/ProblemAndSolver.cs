@@ -543,7 +543,7 @@ namespace TSP
         private double[,] distances;
         private double[,] pheromones;
 
-        class Ant {
+        private class Ant {
             private List<int> path;
             private HashSet<int> visited;
 
@@ -663,7 +663,36 @@ namespace TSP
          * This is determined by pheromone and distance of edges.
          */
         private void TakeBestEdge(Ant ant) {
-            
+            int currentCity = ant.Path[ant.Count - 1];
+            int maxIndex = -1;
+            double max = 0;
+
+            for (int i = 0; i < Cities.Length; i++) {
+                if (!ant.AlreadyVisited(i) && EdgeWeight(currentCity, i) > max) {
+                    max = EdgeWeight(currentCity, i);
+                    maxIndex = i;
+                }
+            }
+
+            if (maxIndex != -1) {
+                ant.Add(maxIndex);
+            }
+            else {
+                ResetAnt(ant);
+            }
+        }
+
+        /*
+         * Determines the value of an edge.
+         * The larger the value the more favorable it is.
+         */
+        private static double A = 1;
+        private static double B = 1;
+        private double EdgeWeight(int x, int y) {
+            if (distances[x, y] == double.PositiveInfinity) {
+                return 0;
+            }
+            return Math.Pow(pheromones[x, y], A) / Math.Pow(distances[x, y], B);
         }
 
         /*
@@ -672,7 +701,7 @@ namespace TSP
          * meaning an edge that was visited a lot previously,
          * but hasn't been visited recently.
          */
-        static int PHEROMONE_CONSTANT_REDUCTION = 3;
+        private static int PHEROMONE_CONSTANT_REDUCTION = 3;
         private void FadePheromone() {
             for (int i = 0; i < Cities.Length; i++)
             {
@@ -688,7 +717,7 @@ namespace TSP
          * The better the path is compared to the old path,
          * the more pheromone that is dropped on each edge.
          */
-        static int COST_DIFFERENCE_FACTOR = 5;
+        private static int COST_DIFFERENCE_FACTOR = 5;
         private void DropPheromone(List<int> ant, double costOfOldSolution, double costOfNewSolution) {
             double fullReductionAmount = (COST_DIFFERENCE_FACTOR * ((costOfOldSolution - costOfNewSolution) / costOfNewSolution))
                 + COST_DIFFERENCE_FACTOR;

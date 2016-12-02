@@ -539,12 +539,9 @@ namespace TSP
 
             return minIndex;
         }
-
-        List<List<int>> ants;
+        
         private double[,] distances;
         private double[,] pheromones;
-        int toursSinceLastChange;
-        int CHANGE_THRESHOLD;
 
         public string[] fancySolveProblem()
         {
@@ -552,18 +549,26 @@ namespace TSP
             int count = 0;
             Stopwatch timer = new Stopwatch();
 
-            ants = new List<List<int>>();
-            distances = CalculateInitialMatrix();
-            pheromones = new double[Cities.Length, Cities.Length];
-            toursSinceLastChange = 0;
-            CHANGE_THRESHOLD = Cities.Length; //This is a place holder value that will be modified later on
-
-            timer.Start();
-
+            List<List<int>> ants = new List<List<int>>();
             //Initialize with empty ants
             for (int i = 0; i < Cities.Length; i++) {
                 ants.Add(new List<int>());
             }
+
+            distances = CalculateInitialMatrix();
+
+            pheromones = new double[Cities.Length, Cities.Length];
+            //Initialize all entries to 0 initially
+            for (int i = 0; i < Cities.Length; i++) {
+                for (int j = 0; j < Cities.Length; j++) {
+                    pheromones[i, j] = 0;
+                }
+            }
+
+            int toursSinceLastChange = 0;
+            int CHANGE_THRESHOLD = Cities.Length; //This is a place holder value that will be modified later on
+            
+            timer.Start();
 
             /*
              * While we are not out of time and still seeing changes,
@@ -582,7 +587,7 @@ namespace TSP
                             TSPSolution potentialSolution = GenerateRoute(ant);
                             double oldSolutionCost = costOfBssf();
                             double newSolutionCost = potentialSolution.costOfRoute();
-                            if (newSolutionCost < oldSolutionCost) {
+                            if (bssf == null || newSolutionCost < oldSolutionCost) {
                                 bssf = potentialSolution;
                                 toursSinceLastChange = 0;
                                 count++;
@@ -599,7 +604,6 @@ namespace TSP
                     //DropPheromoneOnEdge (potentially, depends on how it works without this)
                 }
             }
-
 
             timer.Stop();
 
@@ -620,7 +624,7 @@ namespace TSP
 
         /*
          * Adds the next edge in the path.
-         * This either the best edge (based on pheromone and distance),
+         * This is either the best edge (based on pheromone and distance),
          * or a randomly chosen edge.
          * A random edge is only chosen a small portion of the time.
          */

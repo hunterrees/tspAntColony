@@ -588,7 +588,7 @@ namespace TSP
             //Initialize all entries to 0 initially
             for (int i = 0; i < Cities.Length; i++) {
                 for (int j = 0; j < Cities.Length; j++) {
-                    pheromones[i, j] = 0;
+                    pheromones[i, j] = 1;
                 }
             }
 

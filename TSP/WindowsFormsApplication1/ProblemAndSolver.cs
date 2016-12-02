@@ -648,6 +648,17 @@ namespace TSP
             return new TSPSolution(potentialPath);
         }
 
+        //Function to get random number
+        private static readonly Random getrandom = new Random();
+        private static readonly object syncLock = new object();
+        public static int GetRandomNumber(int min, int max)
+        {
+            lock (syncLock)
+            { // synchronize
+                return getrandom.Next(min, max);
+            }
+        }
+        
         /*
          * Adds the next edge in the path.
          * This is either the best edge (based on pheromone and distance),
@@ -655,6 +666,48 @@ namespace TSP
          * A random edge is only chosen a small portion of the time.
          */
         private void TakeNextEdge(Ant ant) {
+            int rand = GetRandomNumber(0, 10);
+
+            //checking if there is a viable option for a city
+            bool foundViableCity = false;
+            int lastCity = ant.Path[ant.Path.Count - 1];
+            for (int i = 0; i < Cities.Length; i++)
+            {
+                if(distances[lastCity, i] != double.MaxValue)
+                {
+                    foundViableCity = true;
+                }
+            }
+
+
+
+            if (!foundViableCity)
+            {
+                ResetAnt(ant);
+            }
+            else
+            {
+                if (rand < 8)
+                {
+                    TakeBestEdge(ant);
+                }
+                else
+                {
+                    TakeRandomEdge(ant);
+                }
+
+            }
+
+
+
+        }
+
+        /*
+         * Takes a random edge from the current city.
+         * Similar to TakeBestEdge. 
+         */
+        private void TakeRandomEdge(Ant ant)
+        {
 
         }
 

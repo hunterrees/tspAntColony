@@ -543,6 +543,13 @@ namespace TSP
         private double[,] distances;
         private double[,] pheromones;
 
+        //TO-BE-MODIFIED
+        private static int CHANGE_THRESHOLD = 15;
+        private static int RANDOM_THRESHOLD = 75;
+        private static double PHEROMONE_EXPONENT = 1;
+        private static double DISTANCE_EXPONENT = 1;
+        private static double PHEROMONE_CONSTANT_REDUCTION = .75; 
+
         private class Ant {
             private List<int> path;
             private HashSet<int> visited;
@@ -594,7 +601,6 @@ namespace TSP
             }
 
             Stopwatch timeSinceLastChange = new Stopwatch();
-            int CHANGE_THRESHOLD = 15; //TO-BE-MODIFIED
 
             timer.Start();
             timeSinceLastChange.Start();
@@ -664,46 +670,34 @@ namespace TSP
                 }
             }
 
-            if (!foundViableCity)
-            {
+            if (!foundViableCity) {
                 ResetAnt(ant);
             }
-            else
-            {
-                if (rand < 75) //TO-BE-MODIFIED
-                {
+            else {
+                if (rand < RANDOM_THRESHOLD) { 
                     TakeBestEdge(ant);
                 }
-                else
-                {
+                else {
                     TakeRandomEdge(ant);
                 }
-
             }
-
-
-
         }
 
         /*
          * Takes a random edge from the current city.
          * Similar to TakeBestEdge. 
          */
-        private void TakeRandomEdge(Ant ant)
-        {
+        private void TakeRandomEdge(Ant ant) {
             int currentCity = ant.Path[ant.Count - 1];
             
-
             List<int> citiesNotVisited = new List<int>(); //compile list of cities that the ant has NOT visited.
-            for(int i =0; i < Cities.Length; i++)
-            {
-                if (!ant.AlreadyVisited(i) && EdgeWeight(currentCity, i) > 0)
-                {
+            for (int i = 0; i < Cities.Length; i++) {
+                if (!ant.AlreadyVisited(i) && EdgeWeight(currentCity, i) > 0) {
                     citiesNotVisited.Add(i);
                 }
             }
 
-            int randIndex = new Random().Next(0, citiesNotVisited.Count -1);
+            int randIndex = new Random().Next(0, citiesNotVisited.Count - 1);
             ant.Add(citiesNotVisited[randIndex]);
 
         }
@@ -730,13 +724,11 @@ namespace TSP
          * Determines the value of an edge.
          * The larger the value the more favorable it is.
          */
-        private static double A = 1; //TO-BE-MODIFIED
-        private static double B = 1; //TO-BE-MODIFIED
         private double EdgeWeight(int x, int y) {
             if (distances[x, y] == double.PositiveInfinity) {
                 return 0;
             }
-            return Math.Pow(pheromones[x, y], A) / Math.Pow(distances[x, y], B);
+            return Math.Pow(pheromones[x, y], PHEROMONE_EXPONENT) / Math.Pow(distances[x, y], DISTANCE_EXPONENT);
         }
 
         /*
@@ -745,7 +737,6 @@ namespace TSP
          * meaning an edge that was visited a lot previously,
          * but hasn't been visited recently.
          */
-        private static double PHEROMONE_CONSTANT_REDUCTION = .75; //TO-BE-MODIFIED
         private void FadePheromone() {
             for (int i = 0; i < Cities.Length; i++) {
                 for (int j = 0; j < Cities.Length; j++) {

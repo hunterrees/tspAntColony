@@ -564,6 +564,10 @@ namespace TSP
                 get { return path; }
             }
 
+            public HashSet<int> Visited {
+                get { return visited; }
+            }
+
             public int Count {
                 get { return path.Count; }
             }
@@ -600,7 +604,7 @@ namespace TSP
                 }
             }
 
-            ITERATION_THRESHOLD *= Cities.Length * Cities.Length;
+            ITERATION_THRESHOLD *= Cities.Length;
             int iterations = 0;
             timer.Start();
 
@@ -614,13 +618,14 @@ namespace TSP
              * and additional pheromone is placed on the new tour.
              * After this an ant with a completed tour is reset.
              */
-            while(timer.Elapsed.TotalMilliseconds < time_limit && iterations < ITERATION_THRESHOLD || bssf == null) {
+            while (timer.Elapsed.TotalMilliseconds < time_limit && iterations < ITERATION_THRESHOLD || bssf == null) {  
                 foreach (Ant ant in ants) {
                     if (ant.Count == Cities.Length) {
                         if (Cities[ant.Path[ant.Count - 1]].costToGetTo(Cities[ant.Path[0]]) != double.PositiveInfinity) {
                             TSPSolution potentialSolution = GenerateRoute(ant.Path);
                             double costOfRoute = potentialSolution.costOfRoute();
                             if (bssf == null || costOfRoute < costOfBssf()) {
+                                Console.WriteLine("Found solution: " + costOfRoute);
                                 iterations = 0;
                                 bssf = potentialSolution;
                                 count++;
@@ -631,8 +636,8 @@ namespace TSP
                         ResetAnt(ant);
                     }
                     TakeNextEdge(ant);
-                    iterations++;
                 }
+                iterations++;
             }
 
             timer.Stop();
@@ -737,6 +742,7 @@ namespace TSP
          */
         private void ResetAnt(Ant ant) {
             ant.Path.Clear();
+            ant.Visited.Clear();
             ant.Add(random.Next(0, Cities.Length));
         }
         #endregion

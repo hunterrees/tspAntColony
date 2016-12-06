@@ -366,6 +366,9 @@ namespace TSP
             results[TIME] = timer.Elapsed.ToString();
             results[COUNT] = count.ToString();
 
+            Console.WriteLine("Random Size: " + Cities.Length + " Random: " + Seed + " Path: " + costOfBssf().ToString());
+
+
             return results;
         }
 
@@ -410,6 +413,9 @@ namespace TSP
             results[COST] = costOfBssf().ToString();
             results[TIME] = timer.Elapsed.ToString();
             results[COUNT] = count.ToString();
+
+            Console.WriteLine("Branch & Bound Size: " + Cities.Length + " Random: " + Seed + " Path: " + costOfBssf().ToString() + " Time: " + timer.Elapsed.ToString());
+
 
             return results;
         }
@@ -510,6 +516,8 @@ namespace TSP
             results[TIME] = timer.Elapsed.ToString();
             results[COUNT] = count.ToString();
 
+            Console.WriteLine("Greedy Size: " + Cities.Length + " Random: " + Seed + " Path: " + costOfBssf().ToString() + " Time: " + timer.Elapsed.ToString());
+
             return results;
         }
 
@@ -545,12 +553,12 @@ namespace TSP
         private Random random = new Random();
 
         //TO-BE-MODIFIED
-        private static int ITERATION_THRESHOLD = 10;
+        private static int ITERATION_THRESHOLD = 25;
         private static double PHEROMONE_EXPONENT = 1;
         private static double DISTANCE_EXPONENT = 10;
         private static int DROP_CONSTANT = 100;
         private static double PHEROMONE_CONSTANT_REDUCTION = .75;
-        private static double SELECT_BEST_PROBABILITY = .8;
+        private static double SELECT_BEST_PROBABILITY = .75;
 
         private class Ant {
             private List<int> path;
@@ -589,10 +597,10 @@ namespace TSP
             int count = 0;
             Stopwatch timer = new Stopwatch();
 
-            List<Ant> ants = new List<Ant>();
+            Ant[] ants = new Ant[Cities.Length];
             //Initialize with empty ants
             for (int i = 0; i < Cities.Length; i++) {
-                ants.Add(new Ant());
+                ants[i] = new Ant();
                 ants[i].Add(i);
             }
 
@@ -621,10 +629,10 @@ namespace TSP
              */
             while (timer.Elapsed.TotalMilliseconds < time_limit && iterations < ITERATION_THRESHOLD) {
                 for (int i = 0; i < Cities.Length; i++) {
-                    foreach (Ant ant in ants) {
-                        if (ant.Count == Cities.Length) {
-                            if (Cities[ant.Path[ant.Count - 1]].costToGetTo(Cities[ant.Path[0]]) != double.PositiveInfinity) {
-                                TSPSolution potentialSolution = GenerateRoute(ant.Path);
+                    for (int j = 0; j < Cities.Length; j++) {
+                        if (ants[j].Count == Cities.Length) {
+                            if (Cities[ants[j].Path[ants[j].Count - 1]].costToGetTo(Cities[ants[j].Path[0]]) != double.PositiveInfinity) {
+                                TSPSolution potentialSolution = GenerateRoute(ants[j].Path);
                                 double costOfRoute = potentialSolution.costOfRoute();
                                 if (bssf == null || costOfRoute < costOfBssf()) {
                                     iterations = 0;
@@ -632,11 +640,11 @@ namespace TSP
                                     count++;
                                 }
                                 FadePheromone();
-                                DropPheromone(ant, costOfRoute);
+                                DropPheromone(ants[j], costOfRoute);
                             }
-                            ResetAnt(ant);
+                            ResetAnt(ants[j]);
                         }
-                        TakeNextEdge(ant);
+                        TakeNextEdge(ants[j]);
                     }
                 }
                 iterations++;  
@@ -647,6 +655,9 @@ namespace TSP
             results[COST] = costOfBssf().ToString();
             results[TIME] = timer.Elapsed.ToString();
             results[COUNT] = count.ToString();
+
+            Console.WriteLine("Ant Colony Size: " + Cities.Length + " Random: " + Seed + " Path: " + costOfBssf().ToString() + " Time: " + timer.Elapsed.ToString());
+
 
             return results;
         }
@@ -688,8 +699,8 @@ namespace TSP
                     }
                 }
 
-                double potRand = random.NextDouble();
-                if (potRand < SELECT_BEST_PROBABILITY) {
+                double bestEdgeRandom = random.NextDouble();
+                if (bestEdgeRandom < SELECT_BEST_PROBABILITY) {
                     ant.Add(citiesNotVisited[maxIndex]);
                 }
                 else {

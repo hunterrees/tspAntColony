@@ -545,11 +545,12 @@ namespace TSP
         private Random random = new Random();
 
         //TO-BE-MODIFIED
-        private static int ITERATION_THRESHOLD = 25;
+        private static int ITERATION_THRESHOLD = 10;
         private static double PHEROMONE_EXPONENT = 1;
-        private static double DISTANCE_EXPONENT = 5;
+        private static double DISTANCE_EXPONENT = 10;
         private static int DROP_CONSTANT = 100;
-        private static double PHEROMONE_CONSTANT_REDUCTION = .5; 
+        private static double PHEROMONE_CONSTANT_REDUCTION = .75;
+        private static double SELECT_BEST_PROBABILITY = .8;
 
         private class Ant {
             private List<int> path;
@@ -603,9 +604,9 @@ namespace TSP
                     pheromones[i, j] = 1;
                 }
             }
-
-            ITERATION_THRESHOLD *= Cities.Length;
+            
             int iterations = 0;
+            
             timer.Start();
 
             /*
@@ -618,26 +619,27 @@ namespace TSP
              * and additional pheromone is placed on the new tour.
              * After this an ant with a completed tour is reset.
              */
-            while (timer.Elapsed.TotalMilliseconds < time_limit && iterations < ITERATION_THRESHOLD || bssf == null) {  
-                foreach (Ant ant in ants) {
-                    if (ant.Count == Cities.Length) {
-                        if (Cities[ant.Path[ant.Count - 1]].costToGetTo(Cities[ant.Path[0]]) != double.PositiveInfinity) {
-                            TSPSolution potentialSolution = GenerateRoute(ant.Path);
-                            double costOfRoute = potentialSolution.costOfRoute();
-                            if (bssf == null || costOfRoute < costOfBssf()) {
-                                Console.WriteLine("Found solution: " + costOfRoute);
-                                iterations = 0;
-                                bssf = potentialSolution;
-                                count++;
+            while (timer.Elapsed.TotalMilliseconds < time_limit && iterations < ITERATION_THRESHOLD) {
+                for (int i = 0; i < Cities.Length; i++) {
+                    foreach (Ant ant in ants) {
+                        if (ant.Count == Cities.Length) {
+                            if (Cities[ant.Path[ant.Count - 1]].costToGetTo(Cities[ant.Path[0]]) != double.PositiveInfinity) {
+                                TSPSolution potentialSolution = GenerateRoute(ant.Path);
+                                double costOfRoute = potentialSolution.costOfRoute();
+                                if (bssf == null || costOfRoute < costOfBssf()) {
+                                    iterations = 0;
+                                    bssf = potentialSolution;
+                                    count++;
+                                }
+                                FadePheromone();
+                                DropPheromone(ant, costOfRoute);
                             }
-                            FadePheromone();
-                            DropPheromone(ant, costOfRoute);
-                        }  
-                        ResetAnt(ant);
+                            ResetAnt(ant);
+                        }
+                        TakeNextEdge(ant);
                     }
-                    TakeNextEdge(ant);
                 }
-                iterations++;
+                iterations++;  
             }
 
             timer.Stop();
@@ -675,19 +677,32 @@ namespace TSP
 
             if (citiesNotVisited.Count > 0) {
                 double rowWeight = RowWeight(currentCity, citiesNotVisited);
+                int maxIndex = 0;
+                double max = 0;
                 List<double> probabilities = new List<double>();
                 for (int i = 0; i < citiesNotVisited.Count; i++) {
                     probabilities.Add(EdgeWeight(currentCity, citiesNotVisited[i]) / rowWeight);
+                    if (probabilities[i] > max) {
+                        max = probabilities[i];
+                        maxIndex = i;
+                    }
                 }
 
-                double rand = random.NextDouble();
-                for (int i = 0; i < probabilities.Count; i++) {
-                    if (rand <= probabilities[i]) {
-                        ant.Add(citiesNotVisited[i]);
-                        return;
-                    }
-                    rand -= probabilities[i];
+                double potRand = random.NextDouble();
+                if (potRand < SELECT_BEST_PROBABILITY) {
+                    ant.Add(citiesNotVisited[maxIndex]);
                 }
+                else {
+                    double rand = random.NextDouble();
+                    for (int i = 0; i < probabilities.Count; i++) {
+                        if (rand <= probabilities[i]) {
+                            ant.Add(citiesNotVisited[i]);
+                            return;
+                        }
+                        rand -= probabilities[i];
+                    }
+                }
+
             }
             else {
                 ResetAnt(ant);
@@ -702,6 +717,10 @@ namespace TSP
             return Math.Pow(pheromones[x, y], PHEROMONE_EXPONENT) / Math.Pow(distances[x, y], DISTANCE_EXPONENT);
         }
 
+        /*
+         * Totals all edge weights.
+         * Used in computing probabilities.
+         */
         private double RowWeight(int currentCity, List<int> unvisitedCities) {
             double rowWeight = 0;
             for (int i = 0; i < unvisitedCities.Count; i++) {
